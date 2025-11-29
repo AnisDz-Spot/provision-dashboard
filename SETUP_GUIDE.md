@@ -478,6 +478,39 @@ After setup:
 
 ## Additional Resources
 
+---
+
+### Connecting Supabase from the App (Notes)
+
+- **Project-level keys**: The `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are project-level settings. They must be configured in your hosting environment (for example, Vercel or Netlify) for production — they cannot be set from the public web UI of the app itself.
+- **Local development**: Create a `.env.local` file in the project root with the keys (an example `.env.local` with placeholders has been added to the repository). After adding or updating `.env.local`, restart the development server:
+
+```powershell
+npm run dev
+```
+
+- **In-app "Connect Supabase" flow (optional)**: If your goal is to let each user connect their *own* Supabase project, you'll need a secure server-side flow to store and use per-user keys. This template assumes a single, project-level Supabase instance configured via environment variables.
+
+### Troubleshooting: "Your project's URL and Key are required" runtime error
+
+- **Symptom**: Middleware crashes with: `Your project's URL and Key are required to create a Supabase client!` and the stack trace points at `lib/supabase/middleware.ts`.
+- **Cause**: The app attempted to call `createServerClient(...)` while `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` were undefined.
+- **Fix**: Add the two environment variables to `.env.local` (for development) or to your host's environment variables (for production), then restart the app. The repository includes a middleware guard so the app will redirect unauthenticated visitors to `/login` instead of throwing when env vars are not present.
+
+### Per-user Supabase connection (optional)
+
+- This project includes an optional per-user "Connect Supabase" flow. It allows a signed-in user to provide their own Supabase `URL` and `anon/public key`. The values are encrypted on the server and stored in `data/user-supabase-keys.json`.
+- To enable this feature, set a server-side encryption key in your environment:
+
+```env
+SUPABASE_KEYS_ENCRYPTION_KEY=some-strong-secret-or-base64
+```
+
+- The connect page is available at `/settings/connect-supabase` once you're signed in. The API endpoint used is `/api/user/supabase-keys` (GET to check, POST to save).
+- Security notes:
+   - The current implementation stores encrypted data in a file under `data/` for simplicity and local development. For production, consider using a secure database or secret manager (AWS Secrets Manager, HashiCorp Vault, or a protected DB table).
+
+
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [Recharts Documentation](https://recharts.org/)
