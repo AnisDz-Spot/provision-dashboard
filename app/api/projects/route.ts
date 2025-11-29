@@ -1,36 +1,47 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getUserSupabaseClient } from "@/lib/supabase/user-client";
+import { createClient } from "@/lib/supabase/server";
+import { getUserDatabasePool } from "@/lib/database/user-connection";
 
 /**
  * GET /api/projects
- * Fetch all projects for the authenticated user from their Supabase instance
- * Falls back to empty array if Supabase not configured
+ * Fetch all projects for the authenticated user from their database
  */
 export async function GET(request: NextRequest) {
   try {
-    const userClient = await getUserSupabaseClient();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!userClient) {
-      // User hasn't configured their Supabase project yet
-      return NextResponse.json({ projects: [], message: "Supabase not configured" }, { status: 200 });
+    if (!user) return NextResponse.json({ projects: [] }, { status: 401 });
+
+    const pool = await getUserDatabasePool(user.id);
+
+    if (!pool) {
+      // Database not configured yet
+      return NextResponse.json(
+        { projects: [], message: "Database not configured" },
+        { status: 200 }
+      );
     }
 
-    // Fetch from user's Supabase (adjust table name as needed)
-    const { data: projects, error } = await userClient
-      .from("projects")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+      const result = await pool.query(
+        "SELECT * FROM projects WHERE user_id = $1 ORDER BY created_at DESC",
+        [user.id]
+      );
+      await pool.end();
 
-    if (error) {
-      console.error("Error fetching projects:", error);
+      return NextResponse.json({ projects: result.rows });
+    } catch (err: any) {
+      await pool.end();
+      console.error("Database error:", err);
       return NextResponse.json(
         { error: "Failed to fetch projects" },
         { status: 500 }
       );
     }
-
-    return NextResponse.json({ projects: projects || [] });
   } catch (err: any) {
     console.error("Error in GET /api/projects:", err);
     return NextResponse.json(
@@ -42,15 +53,23 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/projects
- * Create a new project in the user's Supabase instance
+ * Create a new project in the user's database
  */
 export async function POST(request: NextRequest) {
   try {
-    const userClient = await getUserSupabaseClient();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!userClient) {
+    if (!user)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const pool = await getUserDatabasePool(user.id);
+
+    if (!pool) {
       return NextResponse.json(
-        { error: "Supabase not configured" },
+        { error: "Database not configured" },
         { status: 400 }
       );
     }
@@ -59,42 +78,34 @@ export async function POST(request: NextRequest) {
     const { name, description, status, priority, budget, dueDate } = body;
 
     if (!name) {
+      await pool.end();
       return NextResponse.json(
         { error: "Project name is required" },
         { status: 400 }
       );
     }
 
-    // Create in user's Supabase
-    const { data: project, error } = await userClient
-      .from("projects")
-      .insert([
-        {
-          name,
-          description,
-          status: status || "planning",
-          priority: priority || "medium",
-          budget: budget || 0,
-          spent: 0,
-          due_date: dueDate,
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select()
-      .single();
+    try {
+      const result = await pool.query(
+        `INSERT INTO projects (user_id, name, description, status, priority, budget, due_date, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         RETURNING *`,
+        [user.id, name, description, status || "planning", priority || "medium", budget || 0, dueDate]
+      );
+      await pool.end();
 
-    if (error) {
-      console.error("Error creating project:", error);
+      return NextResponse.json(
+        { project: result.rows[0], message: "Project created successfully" },
+        { status: 201 }
+      );
+    } catch (err: any) {
+      await pool.end();
+      console.error("Database error:", err);
       return NextResponse.json(
         { error: "Failed to create project" },
         { status: 500 }
       );
     }
-
-    return NextResponse.json(
-      { project, message: "Project created successfully" },
-      { status: 201 }
-    );
   } catch (err: any) {
     console.error("Error in POST /api/projects:", err);
     return NextResponse.json(

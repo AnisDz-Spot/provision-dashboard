@@ -82,8 +82,8 @@ export default function RegisterPage() {
 
         if (profileError) throw profileError;
 
-        // Redirect to Supabase setup (required for per-user DB access)
-        router.push("/auth/setup-supabase");
+        // Redirect to database setup (required for per-user DB access)
+        router.push("/auth/setup-database");
       }
     } catch (err: any) {
       setError(err.message || "An error occurred");
