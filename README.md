@@ -17,7 +17,11 @@ A premium, modern, and highly performant Project Management Dashboard template b
   - **Two-Factor Authentication (2FA) - Required for all users**
   - Protected routes with middleware
   - Session management
-- **Settings Page** - User profile, 2FA status, and application preferences
+- **Multi-Tenant Database** - Bring Your Own PostgreSQL database
+  - Secure connection string encryption
+  - Per-user data isolation
+  - Support for any PostgreSQL provider (Neon, Railway, Render, AWS RDS, etc.)
+- **Settings Page** - User profile, 2FA status, and database connection
 
 ### Design & UX
 - **Modern UI** - Clean, professional, and minimalist design
@@ -49,33 +53,33 @@ A premium, modern, and highly performant Project Management Dashboard template b
    npm install
    ```
 
-3. **Set up Supabase** (Required)
-   - Create a Supabase account at [supabase.com](https://supabase.com)
-   - Create a new project
-   - Get your API credentials (Project URL and anon key)
-   - See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed instructions
-
-4. **Configure environment variables**
+3. **Set up environment variables**
    - Create a `.env.local` file in the root directory
-   - Add your Supabase credentials:
+   - Add your Supabase credentials (for authentication only):
      ```env
      NEXT_PUBLIC_SUPABASE_URL=your-project-url
      NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
      ```
+   - Generate and add encryption key:
+     ```env
+     SUPABASE_KEYS_ENCRYPTION_KEY=your-32-char-hex-string
+     ```
 
-5. **Set up database**
-   - Run the migration SQL in Supabase SQL Editor
-   - See `supabase/migrations/001_create_profiles_table.sql`
-
-6. **Run the development server**
+4. **Run the development server**
    ```bash
    npm run dev
    ```
 
-7. **Open your browser**
+5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-**📚 For detailed setup instructions, see [SETUP_GUIDE.md](./SETUP_GUIDE.md) and [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**
+6. **Follow the setup wizard**
+   - Create account or login
+   - Follow the 4-step "Connect Your Database" wizard
+   - Provide your PostgreSQL connection string
+   - The dashboard will initialize with your data
+
+**📚 For complete setup instructions and database provider recommendations, see [BRING_YOUR_OWN_DATABASE.md](./BRING_YOUR_OWN_DATABASE.md)**
 
 ## 🏗️ Project Structure
 
@@ -152,44 +156,89 @@ The template includes 8+ chart types using Recharts:
 7. **Scatter Chart** - Scatter plots
 8. **Treemap Chart** - Treemap visualizations
 
-## 🔐 Authentication
+## 🔐 Authentication & Database
 
-The template includes a complete authentication system powered by Supabase:
+The template uses a modern **Bring Your Own Database** (BYO) architecture:
 
-### Features
-- **Multiple Auth Methods**: Email/Password, GitHub OAuth, Google OAuth
-- **Two-Factor Authentication**: Required for all users (TOTP-based)
-- **Protected Routes**: Automatic redirect for unauthenticated users
-- **Session Management**: Secure session handling with Supabase
-- **User Profiles**: Automatic profile creation on signup
+### Authentication
+- **Supabase Auth** handles user signup, login, OAuth, and 2FA
+- No need to create Supabase data tables or projects
+- Users authenticate once, then connect their PostgreSQL database
 
-### Setup Required
-1. Create a Supabase project
-2. Configure OAuth providers (GitHub, Google)
-3. Set up database schema
-4. Configure environment variables
+### Database
+- Each user provides their own **PostgreSQL connection string**
+- Connection strings are encrypted and stored server-side (AES-256-GCM)
+- Users pay their PostgreSQL provider directly
+- Automatic data isolation via SQL (user_id filtering on every query)
 
-See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for complete setup instructions.
+### Supported PostgreSQL Providers
+- **Neon** - Serverless PostgreSQL (recommended)
+- **Railway** - Easy deployment
+- **Render** - Simple managed PostgreSQL
+- **AWS RDS** - Enterprise-grade
+- **DigitalOcean** - Managed databases
+- Any PostgreSQL instance (self-hosted, etc.)
 
-## 🔌 API Integration
+### Setup Flow
+1. Create account and login with Supabase
+2. Follow 4-step "Connect Your Database" wizard
+3. Paste your PostgreSQL connection string
+4. App initializes schema automatically
+5. Start using the dashboard
 
-The template uses Supabase for authentication and can be extended to use Supabase for data storage. Currently, project/task data uses JSON files for simulation. To integrate with Supabase:
+See [BRING_YOUR_OWN_DATABASE.md](./BRING_YOUR_OWN_DATABASE.md) for complete setup instructions and troubleshooting.
 
-1. **Create tables** in Supabase for projects, tasks, team members
-2. **Replace JSON imports** with Supabase queries
-3. **Update components** to use Supabase client
-4. **Add loading states** and error handling
+## 🔌 How Data Works
 
-Example Supabase integration:
+The template uses a modern multi-tenant architecture:
 
-```typescript
-import { createClient } from "@/lib/supabase/client";
+### Data Storage
+- **Your PostgreSQL Database** - Store all projects, tasks, and team data
+- **Encrypted Connection String** - Stored server-side with AES-256-GCM encryption
+- **Per-User Isolation** - All queries filter by user_id automatically
 
-const supabase = createClient();
-const { data: projects } = await supabase
-  .from("projects")
-  .select("*");
+### API Routes
+The following API routes use your PostgreSQL database:
+- `GET/POST /api/projects` - Project management
+- `GET/POST /api/tasks` - Task management
+- `GET/POST /api/team` - Team member management
+
+### Database Schema
+The setup wizard automatically creates the required tables:
+```sql
+CREATE TABLE projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  status TEXT,
+  client TEXT,
+  start_date TIMESTAMP,
+  end_date TIMESTAMP,
+  budget NUMERIC,
+  spent NUMERIC,
+  progress INTEGER,
+  priority TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, id)
+);
+
+-- Similar tables for tasks, team_members
 ```
+
+### Example Usage
+All data operations are automatic - just use the dashboard! Under the hood:
+```typescript
+// This happens automatically in API routes
+const query = `
+  SELECT * FROM projects 
+  WHERE user_id = $1 
+  ORDER BY created_at DESC
+`;
+const result = await userPool.query(query, [userId]);
+```
+
+No need to manage connections or write SQL - the app handles it all!
 
 ## 🧩 Components
 

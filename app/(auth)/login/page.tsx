@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { SupabaseNotConfiguredPage } from "@/components/supabase-not-configured";
 import { createClient } from "@/lib/supabase/client";
 import { Github, Mail, Loader2 } from "lucide-react";
 
@@ -16,24 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true);
   const supabase = createClient();
-
-  useEffect(() => {
-    // Check if Supabase is properly configured by checking if we get the mock client
-    const isConfigured =
-      !!(
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        process.env.NEXT_PUBLIC_SUPABASE_URL !== "https://your-project-ref.supabase.co" &&
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "your_anon_public_key"
-      );
-    setIsSupabaseConfigured(isConfigured);
-  }, []);
-
-  if (!isSupabaseConfigured) {
-    return <SupabaseNotConfiguredPage />;
-  }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
