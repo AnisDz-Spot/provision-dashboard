@@ -19,6 +19,7 @@ npm install
 ```
 
 This will install all required dependencies including:
+
 - Next.js 16
 - React 19
 - TypeScript
@@ -130,17 +131,20 @@ supabase db push
 ### 6. Set Up Supabase Edge Functions (for 2FA)
 
 1. Install Supabase CLI (if not already installed):
+
    ```bash
    npm install -g supabase
    ```
 
 2. Login and link your project:
+
    ```bash
    supabase login
    supabase link --project-ref your-project-ref
    ```
 
 3. Deploy the Edge Functions:
+
    ```bash
    # Deploy generate-2fa-secret function
    supabase functions deploy generate-2fa-secret
@@ -165,6 +169,7 @@ supabase db push
 ### 8. Test Authentication
 
 1. Start your development server:
+
    ```bash
    npm run dev
    ```
@@ -328,12 +333,14 @@ The project includes full authentication with Supabase:
 ### Authentication Flow
 
 1. **Registration**:
+
    - User signs up with email/password or OAuth
    - Profile is automatically created in the database
    - User is redirected to 2FA setup page
    - User must enable 2FA before accessing the dashboard
 
 2. **Login**:
+
    - User signs in with their credentials
    - If 2FA is enabled, user is redirected to 2FA verification
    - After verification, user can access the dashboard
@@ -398,7 +405,7 @@ import Image from "next/image";
   width={500}
   height={300}
   priority // For above-the-fold images
-/>
+/>;
 ```
 
 ### Code Splitting
@@ -448,15 +455,19 @@ export async function GET() {
 ### Common Issues
 
 **Issue**: TypeScript errors
+
 - **Solution**: Ensure all types are properly defined. Check `tsconfig.json` settings.
 
 **Issue**: Tailwind styles not applying
+
 - **Solution**: Check `tailwind.config` and ensure classes are not purged.
 
 **Issue**: Charts not rendering
+
 - **Solution**: Ensure Recharts is installed and components are client-side (`"use client"`).
 
 **Issue**: Theme not switching
+
 - **Solution**: Check browser localStorage and ensure ThemeProvider is in root layout.
 
 ### Getting Help
@@ -489,7 +500,7 @@ After setup:
 npm run dev
 ```
 
-- **In-app "Connect Supabase" flow (optional)**: If your goal is to let each user connect their *own* Supabase project, you'll need a secure server-side flow to store and use per-user keys. This template assumes a single, project-level Supabase instance configured via environment variables.
+- **In-app "Connect Supabase" flow (optional)**: If your goal is to let each user connect their _own_ Supabase project, you'll need a secure server-side flow to store and use per-user keys. This template assumes a single, project-level Supabase instance configured via environment variables.
 
 ### Troubleshooting: "Your project's URL and Key are required" runtime error
 
@@ -508,12 +519,11 @@ SUPABASE_KEYS_ENCRYPTION_KEY=some-strong-secret-or-base64
 
 - The connect page is available at `/settings/connect-supabase` once you're signed in. The API endpoint used is `/api/user/supabase-keys` (GET to check, POST to save).
 - Security notes:
-   - The current implementation stores encrypted data in a file under `data/` for simplicity and local development. For production, consider using a secure database or secret manager (AWS Secrets Manager, HashiCorp Vault, or a protected DB table).
 
+  - The current implementation stores encrypted data in a file under `data/` for simplicity and local development. For production, consider using a secure database or secret manager (AWS Secrets Manager, HashiCorp Vault, or a protected DB table).
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [Recharts Documentation](https://recharts.org/)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Zustand Documentation](https://zustand-demo.pmnd.rs/)
-

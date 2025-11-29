@@ -2,7 +2,11 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 
-const STORAGE_PATH = path.join(process.cwd(), "data", "user-supabase-keys.json");
+const STORAGE_PATH = path.join(
+  process.cwd(),
+  "data",
+  "user-supabase-keys.json"
+);
 
 type StoredRecord = {
   iv: string;
@@ -43,12 +47,18 @@ export async function saveUserKeys(
   encryptionKey?: string
 ) {
   const key = getKeyFromEnv(encryptionKey);
-  if (!key) throw new Error("Encryption key not configured (SUPABASE_KEYS_ENCRYPTION_KEY).");
+  if (!key)
+    throw new Error(
+      "Encryption key not configured (SUPABASE_KEYS_ENCRYPTION_KEY)."
+    );
 
   const payload = JSON.stringify({ url, anonKey });
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
-  const encrypted = Buffer.concat([cipher.update(payload, "utf8"), cipher.final()]);
+  const encrypted = Buffer.concat([
+    cipher.update(payload, "utf8"),
+    cipher.final(),
+  ]);
   const authTag = cipher.getAuthTag();
 
   const store = await readStorage();
@@ -62,7 +72,10 @@ export async function saveUserKeys(
 
 export async function getUserKeys(userId: string, encryptionKey?: string) {
   const key = getKeyFromEnv(encryptionKey);
-  if (!key) throw new Error("Encryption key not configured (SUPABASE_KEYS_ENCRYPTION_KEY).");
+  if (!key)
+    throw new Error(
+      "Encryption key not configured (SUPABASE_KEYS_ENCRYPTION_KEY)."
+    );
 
   const store = await readStorage();
   const record = store[userId];
@@ -75,7 +88,10 @@ export async function getUserKeys(userId: string, encryptionKey?: string) {
 
   const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
   decipher.setAuthTag(authTag);
-  const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+  const decrypted = Buffer.concat([
+    decipher.update(encrypted),
+    decipher.final(),
+  ]);
   const parsed = JSON.parse(decrypted.toString("utf8"));
   return parsed as { url: string; anonKey: string };
 }

@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
@@ -66,9 +72,7 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Reset password</CardTitle>
-          <CardDescription>
-            Enter your new password
-          </CardDescription>
+          <CardDescription>Enter your new password</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -110,7 +114,12 @@ export default function ResetPasswordPage() {
                 disabled={loading}
               />
             </div>
-            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -126,4 +135,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-

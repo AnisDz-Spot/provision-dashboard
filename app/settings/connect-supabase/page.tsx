@@ -47,7 +47,12 @@ export default function ConnectSupabasePage() {
       </p>
 
       <div style={{ marginTop: 16 }}>
-        <strong>Status:</strong> {connected === null ? "checking..." : connected ? "connected" : "not connected"}
+        <strong>Status:</strong>{" "}
+        {connected === null
+          ? "checking..."
+          : connected
+          ? "connected"
+          : "not connected"}
       </div>
 
       <form onSubmit={onSubmit} style={{ marginTop: 16, maxWidth: 700 }}>
@@ -79,9 +84,7 @@ export default function ConnectSupabasePage() {
           Save
         </button>
 
-        <div style={{ marginTop: 12 }}>
-          {status && <pre>{status}</pre>}
-        </div>
+        <div style={{ marginTop: 12 }}>{status && <pre>{status}</pre>}</div>
       </form>
     </div>
   );
