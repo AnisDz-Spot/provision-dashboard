@@ -1,0 +1,147 @@
+[
+  {
+    "id": "1",
+    "title": "Design homepage mockups",
+    "description": "Create initial design mockups for the new homepage",
+    "projectId": "1",
+    "assigneeId": "1",
+    "status": "in-progress",
+    "priority": "high",
+    "dueDate": "2024-12-15",
+    "createdAt": "2024-11-01",
+    "tags": ["design", "ui"]
+  },
+  {
+    "id": "2",
+    "title": "Implement user authentication",
+    "description": "Set up login and registration flows",
+    "projectId": "1",
+    "assigneeId": "2",
+    "status": "to-do",
+    "priority": "high",
+    "dueDate": "2024-12-20",
+    "createdAt": "2024-11-05",
+    "tags": ["development", "backend"]
+  },
+  {
+    "id": "3",
+    "title": "Write API documentation",
+    "description": "Document all API endpoints and usage",
+    "projectId": "2",
+    "assigneeId": "5",
+    "status": "in-review",
+    "priority": "medium",
+    "dueDate": "2024-12-10",
+    "createdAt": "2024-10-28",
+    "tags": ["documentation"]
+  },
+  {
+    "id": "4",
+    "title": "Design mobile app wireframes",
+    "description": "Create wireframes for all main screens",
+    "projectId": "2",
+    "assigneeId": "1",
+    "status": "completed",
+    "priority": "high",
+    "dueDate": "2024-11-30",
+    "createdAt": "2024-10-15",
+    "tags": ["design", "wireframes"]
+  },
+  {
+    "id": "5",
+    "title": "Logo design concepts",
+    "description": "Present 3 logo design concepts to client",
+    "projectId": "3",
+    "assigneeId": "7",
+    "status": "completed",
+    "priority": "medium",
+    "dueDate": "2024-11-20",
+    "createdAt": "2024-10-10",
+    "tags": ["design", "branding"]
+  },
+  {
+    "id": "6",
+    "title": "Database migration script",
+    "description": "Create script to migrate legacy data",
+    "projectId": "4",
+    "assigneeId": "3",
+    "status": "in-progress",
+    "priority": "high",
+    "dueDate": "2024-12-18",
+    "createdAt": "2024-11-10",
+    "tags": ["development", "database"]
+  },
+  {
+    "id": "7",
+    "title": "Social media templates",
+    "description": "Design templates for Instagram and Facebook posts",
+    "projectId": "5",
+    "assigneeId": "9",
+    "status": "in-progress",
+    "priority": "low",
+    "dueDate": "2024-12-12",
+    "createdAt": "2024-11-15",
+    "tags": ["design", "social-media"]
+  },
+  {
+    "id": "8",
+    "title": "Payment gateway integration",
+    "description": "Integrate Stripe payment gateway",
+    "projectId": "6",
+    "assigneeId": "2",
+    "status": "to-do",
+    "priority": "high",
+    "dueDate": "2024-12-25",
+    "createdAt": "2024-11-20",
+    "tags": ["development", "integration"]
+  },
+  {
+    "id": "9",
+    "title": "Chart components library",
+    "description": "Build reusable chart components",
+    "projectId": "7",
+    "assigneeId": "4",
+    "status": "in-progress",
+    "priority": "medium",
+    "dueDate": "2024-12-14",
+    "createdAt": "2024-11-08",
+    "tags": ["development", "frontend"]
+  },
+  {
+    "id": "10",
+    "title": "User testing session",
+    "description": "Conduct user testing for CMS interface",
+    "projectId": "8",
+    "assigneeId": "5",
+    "status": "completed",
+    "priority": "medium",
+    "dueDate": "2024-01-10",
+    "createdAt": "2023-12-20",
+    "tags": ["testing", "ux"]
+  },
+  {
+    "id": "11",
+    "title": "Fix responsive layout issues",
+    "description": "Address mobile responsiveness problems",
+    "projectId": "1",
+    "assigneeId": "4",
+    "status": "to-do",
+    "priority": "medium",
+    "dueDate": "2024-12-22",
+    "createdAt": "2024-11-18",
+    "tags": ["development", "frontend"]
+  },
+  {
+    "id": "12",
+    "title": "Client presentation",
+    "description": "Prepare and deliver project status presentation",
+    "projectId": "1",
+    "assigneeId": "1",
+    "status": "in-review",
+    "priority": "high",
+    "dueDate": "2024-12-16",
+    "createdAt": "2024-11-12",
+    "tags": ["presentation"]
+  }
+]
+

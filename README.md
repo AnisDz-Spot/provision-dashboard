@@ -1,36 +1,325 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Provision Dashboard - Project Management Template
 
-## Getting Started
+A premium, modern, and highly performant Project Management Dashboard template built with Next.js, TypeScript, and Tailwind CSS. Perfect for agencies, large teams, and SaaS applications looking for a powerful internal tool interface.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Core Functionality
+- **Comprehensive Dashboard** - Overview of key metrics, charts, and quick task view
+- **Project Management** - Full CRUD operations with filtering, sorting, and search
+- **Task Management** - Advanced task tracking with priority and status filtering
+- **Kanban Board** - Drag-and-drop task management with real-time updates
+- **Team Management** - Team member profiles with workload tracking
+- **Authentication System** - Complete auth with Supabase:
+  - Email/Password authentication
+  - GitHub OAuth
+  - Google OAuth
+  - **Two-Factor Authentication (2FA) - Required for all users**
+  - Protected routes with middleware
+  - Session management
+- **Settings Page** - User profile, 2FA status, and application preferences
+
+### Design & UX
+- **Modern UI** - Clean, professional, and minimalist design
+- **Fully Responsive** - Optimized for mobile, tablet, and desktop
+- **Dark Mode** - Light and dark theme support with system preference detection
+- **Customizable** - CSS variables for easy color scheme customization
+- **High Performance** - Optimized for fast loading and smooth interactions
+
+### Technical Features
+- **Next.js 16** - Latest stable version with App Router
+- **TypeScript** - Fully typed codebase with strict type checking
+- **Tailwind CSS v4** - Utility-first styling
+- **Recharts** - 8+ chart types (Bar, Line, Pie, Doughnut, Area, Radar, Scatter, Treemap)
+- **Zustand** - Lightweight state management
+- **Form Validation** - Complex forms with validation
+- **Data Tables** - Responsive tables with pagination and sorting
+- **Modals** - Reusable modal components
+
+## 📦 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd provision-dashboard
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up Supabase** (Required)
+   - Create a Supabase account at [supabase.com](https://supabase.com)
+   - Create a new project
+   - Get your API credentials (Project URL and anon key)
+   - See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed instructions
+
+4. **Configure environment variables**
+   - Create a `.env.local` file in the root directory
+   - Add your Supabase credentials:
+     ```env
+     NEXT_PUBLIC_SUPABASE_URL=your-project-url
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+     ```
+
+5. **Set up database**
+   - Run the migration SQL in Supabase SQL Editor
+   - See `supabase/migrations/001_create_profiles_table.sql`
+
+6. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+7. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+**📚 For detailed setup instructions, see [SETUP_GUIDE.md](./SETUP_GUIDE.md) and [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**
+
+## 🏗️ Project Structure
+
+```
+provision-dashboard/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Authentication pages
+│   ├── dashboard/         # Main dashboard
+│   ├── projects/          # Projects list and detail
+│   ├── tasks/             # Task management
+│   ├── kanban/            # Kanban board
+│   ├── team/              # Team management
+│   └── settings/          # Settings page
+├── components/            # React components
+│   ├── ui/               # Base UI components
+│   ├── charts/           # Chart components
+│   ├── forms/            # Form components
+│   ├── tables/           # Table components
+│   ├── modals/           # Modal components
+│   └── layout/           # Layout components
+├── data/                  # JSON data files (simulated data)
+├── lib/                   # Utility functions
+├── stores/                # Zustand stores
+└── hooks/                 # Custom React hooks
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📄 Pages Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Authentication Pages
+- **Login** (`/login`) - User authentication
+- **Register** (`/register`) - New user registration
+- **Forgot Password** (`/forgot-password`) - Password recovery
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Main Pages
+- **Dashboard** (`/dashboard`) - Overview with metrics and charts
+- **Projects** (`/projects`) - Project list with filtering and search
+- **Project Detail** (`/projects/[id]`) - Individual project view with tabs
+- **Tasks** (`/tasks`) - Task management with advanced filtering
+- **Kanban** (`/kanban`) - Drag-and-drop kanban board
+- **Team** (`/team`) - Team member list
+- **Team Member** (`/team/[id]`) - Individual team member profile
+- **Settings** (`/settings`) - User settings and preferences
+- **404** (`/not-found`) - Error page
 
-## Learn More
+## 🎨 Theming
 
-To learn more about Next.js, take a look at the following resources:
+The template supports light and dark modes with system preference detection. Theme can be changed via:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Settings Page** - User preference selector
+2. **Header Toggle** - Quick theme switcher
+3. **System Preference** - Automatic detection
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Customizing Colors
 
-## Deploy on Vercel
+Edit `app/globals.css` to customize the color scheme:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```css
+:root {
+  --primary: 221.2 83.2% 53.3%;
+  /* Add your custom colors */
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📊 Chart Types
+
+The template includes 8+ chart types using Recharts:
+
+1. **Bar Chart** - Vertical bar charts
+2. **Line Chart** - Line graphs with trends
+3. **Pie Chart** - Pie charts for distribution
+4. **Doughnut Chart** - Doughnut charts
+5. **Area Chart** - Filled area charts
+6. **Radar Chart** - Radar/spider charts
+7. **Scatter Chart** - Scatter plots
+8. **Treemap Chart** - Treemap visualizations
+
+## 🔐 Authentication
+
+The template includes a complete authentication system powered by Supabase:
+
+### Features
+- **Multiple Auth Methods**: Email/Password, GitHub OAuth, Google OAuth
+- **Two-Factor Authentication**: Required for all users (TOTP-based)
+- **Protected Routes**: Automatic redirect for unauthenticated users
+- **Session Management**: Secure session handling with Supabase
+- **User Profiles**: Automatic profile creation on signup
+
+### Setup Required
+1. Create a Supabase project
+2. Configure OAuth providers (GitHub, Google)
+3. Set up database schema
+4. Configure environment variables
+
+See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for complete setup instructions.
+
+## 🔌 API Integration
+
+The template uses Supabase for authentication and can be extended to use Supabase for data storage. Currently, project/task data uses JSON files for simulation. To integrate with Supabase:
+
+1. **Create tables** in Supabase for projects, tasks, team members
+2. **Replace JSON imports** with Supabase queries
+3. **Update components** to use Supabase client
+4. **Add loading states** and error handling
+
+Example Supabase integration:
+
+```typescript
+import { createClient } from "@/lib/supabase/client";
+
+const supabase = createClient();
+const { data: projects } = await supabase
+  .from("projects")
+  .select("*");
+```
+
+## 🧩 Components
+
+### UI Components
+- `Button` - Styled button with variants
+- `Input` - Form input field
+- `Card` - Container card component
+- `Badge` - Status and label badges
+- `Avatar` - User avatar with initials
+- `Select` - Dropdown select
+- `Tabs` - Tab navigation
+- `Label` - Form labels
+- `Textarea` - Multi-line text input
+
+### Chart Components
+All chart components are located in `components/charts/` and use Recharts.
+
+### Form Components
+- `ProjectForm` - Project creation/editing form with validation
+- Additional forms can be created following the same pattern
+
+### Table Components
+- `DataTable` - Responsive data table with pagination and search
+
+### Modal Components
+- `Modal` - Base modal component
+- `CreateTaskModal` - Task creation modal
+
+## 🛠️ Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+### Code Style
+
+The project uses:
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **TypeScript** - Type checking
+
+## 📝 Data Structure
+
+### Projects
+```typescript
+{
+  id: string;
+  name: string;
+  description: string;
+  status: "planning" | "in-progress" | "completed";
+  client: string;
+  startDate: string;
+  endDate: string;
+  budget: number;
+  spent: number;
+  team: string[];
+  progress: number;
+  priority: "high" | "medium" | "low";
+}
+```
+
+### Tasks
+```typescript
+{
+  id: string;
+  title: string;
+  description: string;
+  projectId: string;
+  assigneeId: string;
+  status: "to-do" | "in-progress" | "in-review" | "completed";
+  priority: "high" | "medium" | "low";
+  dueDate: string;
+  createdAt: string;
+  tags: string[];
+}
+```
+
+### Team Members
+```typescript
+{
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: "available" | "busy" | "away";
+  workload: number;
+  joinedDate: string;
+  skills: string[];
+  projects: string[];
+}
+```
+
+## 🚢 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Deploy automatically
+
+### Other Platforms
+
+The template can be deployed to any platform that supports Next.js:
+- Netlify
+- AWS Amplify
+- Railway
+- DigitalOcean App Platform
+
+## 📚 Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Recharts Documentation](https://recharts.org/)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+
+## 📄 License
+
+This template is provided as-is for use in your projects. Please refer to the license file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Support
+
+For support, please open an issue in the repository or contact the development team.
+
+---
+
+Built with ❤️ using Next.js, TypeScript, and Tailwind CSS
