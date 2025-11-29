@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,45 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConfigured, setIsConfigured] = useState(true);
   const supabase = createClient();
+
+  useEffect(() => {
+    const configured = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    if (!configured || process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("your-project-ref")) {
+      setIsConfigured(false);
+    }
+  }, []);
+
+  if (!isConfigured) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md border-destructive">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-destructive">Configuration Required</CardTitle>
+            <CardDescription>Supabase credentials not found</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-lg bg-destructive/10 text-destructive text-sm">
+              <p className="font-semibold mb-2">Supabase is not configured</p>
+              <ol className="list-decimal list-inside space-y-2 text-xs">
+                <li>Create a Supabase project at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="underline">supabase.com</a></li>
+                <li>Copy your project URL and anon key</li>
+                <li>Update <code className="bg-white/20 px-1 rounded">.env.local</code>:
+                  <div className="mt-2 text-xs font-mono space-y-1">
+                    <div>NEXT_PUBLIC_SUPABASE_URL=your-url</div>
+                    <div>NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key</div>
+                  </div>
+                </li>
+                <li>Restart the development server</li>
+              </ol>
+            </div>
+            <p className="text-xs text-muted-foreground">See <code className="bg-muted px-1 rounded">BRING_YOUR_OWN_DATABASE.md</code> for complete setup instructions.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,9 +116,13 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">P</span>
-            </div>
+            <Image
+              src="/provision-logo.png"
+              alt="Provision Logo"
+              width={40}
+              height={40}
+              className="rounded-lg"
+            />
             <span className="font-bold text-2xl">Provision</span>
           </div>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
