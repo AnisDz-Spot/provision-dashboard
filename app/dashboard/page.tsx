@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SupabaseRequiredModal } from "@/components/modals/supabase-required-modal";
+import { useSupabaseConnection } from "@/hooks/useSupabaseConnection";
 import {
   BarChartComponent,
   LineChartComponent,
@@ -17,6 +20,8 @@ import { formatCurrency } from "@/lib/utils";
 import { FolderKanban, CheckSquare, Users, TrendingUp, AlertCircle } from "lucide-react";
 
 export default function DashboardPage() {
+  const { isConnected, loading: checkingConnection } = useSupabaseConnection();
+  const [modalKey, setModalKey] = useState(0);
   // Calculate metrics
   const totalProjects = projectsData.length;
   const overdueTasks = tasksData.filter(
@@ -225,6 +230,15 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <SupabaseRequiredModal
+        key={modalKey}
+        isOpen={!checkingConnection && isConnected === false}
+        onSuccess={() => {
+          // Refresh the connection status by remounting the modal
+          setModalKey((prev) => prev + 1);
+        }}
+      />
     </MainLayout>
   );
 }
