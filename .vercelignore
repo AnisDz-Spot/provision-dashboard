@@ -1,0 +1,11 @@
+# Prevent including local development files and Deno functions in Vercel builds
+supabase/functions/
+data/user-supabase-keys.json
+.env.local
+.env
+/.netlify
+/.vercel
+/.vercelignore
+node_modules/
+dist/
+/.DS_Store
