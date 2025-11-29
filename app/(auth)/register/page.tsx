@@ -76,6 +76,17 @@ export default function RegisterPage() {
   };
 
   const handleOAuthRegister = async (provider: "github" | "google") => {
+    // Prevent calling OAuth if app-level Supabase is not configured.
+    const pubUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").toString();
+    const pubKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").toString();
+
+    if (!pubUrl || !pubKey || pubUrl.includes("your-project-ref") || pubKey.includes("your_anon_public_key")) {
+      setError(
+        "Authentication is not configured. Ask the site admin to configure Supabase auth, or use email/password to create an account."
+      );
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
