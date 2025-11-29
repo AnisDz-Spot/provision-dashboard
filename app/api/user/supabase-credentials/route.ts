@@ -4,13 +4,13 @@ import crypto from "crypto";
 
 const ENCRYPTION_KEY = process.env.SUPABASE_KEYS_ENCRYPTION_KEY || "";
 
-if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
-  throw new Error(
-    "SUPABASE_KEYS_ENCRYPTION_KEY must be a 32-byte hex string (64 chars)"
-  );
-}
-
 function encryptCredentials(url: string, anonKey: string): string {
+  if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
+    throw new Error(
+      "SUPABASE_KEYS_ENCRYPTION_KEY must be set to a 32-byte hex string (64 chars)"
+    );
+  }
+
   const iv = crypto.randomBytes(12);
   const encKey = Buffer.from(ENCRYPTION_KEY, "hex");
   const cipher = crypto.createCipheriv("aes-256-gcm", encKey, iv);
@@ -24,6 +24,12 @@ function encryptCredentials(url: string, anonKey: string): string {
 }
 
 function decryptCredentials(encrypted: string): { url: string; anonKey: string } {
+  if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
+    throw new Error(
+      "SUPABASE_KEYS_ENCRYPTION_KEY must be set to a 32-byte hex string (64 chars)"
+    );
+  }
+
   const [ivHex, authTagHex, ciphertext] = encrypted.split(":");
   const encKey = Buffer.from(ENCRYPTION_KEY, "hex");
 
