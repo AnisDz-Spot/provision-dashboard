@@ -15,6 +15,7 @@ export function createClient() {
         resetPasswordForEmail: async () => ({ error: new Error("Supabase not configured") }),
         signUp: async () => ({ data: null, error: new Error("Supabase not configured") }),
         signInWithPassword: async () => ({ data: null, error: new Error("Supabase not configured") }),
+        signInWithOAuth: async () => ({ data: null, error: new Error("Supabase not configured") }),
         getUser: async () => ({ data: null, error: new Error("Supabase not configured") }),
         signOut: async () => ({ error: new Error("Supabase not configured") }),
         updateUser: async () => ({ data: null, error: new Error("Supabase not configured") }),
