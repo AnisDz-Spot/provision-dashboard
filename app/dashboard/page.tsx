@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SupabaseRequiredModal } from "@/components/modals/supabase-required-modal";
 import { useSupabaseConnection } from "@/hooks/useSupabaseConnection";
+import { useUserSupabaseClient } from "@/hooks/useUserSupabaseClient";
 import {
   BarChartComponent,
   LineChartComponent,
@@ -27,6 +28,8 @@ import {
 
 export default function DashboardPage() {
   const { isConnected, loading: checkingConnection } = useSupabaseConnection();
+  const { supabase: userSupabaseClient, loading: loadingUserClient } =
+    useUserSupabaseClient();
   const [modalKey, setModalKey] = useState(0);
   // Calculate metrics
   const totalProjects = projectsData.length;

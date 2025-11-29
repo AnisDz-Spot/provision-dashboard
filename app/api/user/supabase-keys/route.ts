@@ -16,8 +16,14 @@ export async function GET(request: NextRequest) {
 
     if (!user) return NextResponse.json({ connected: false }, { status: 401 });
 
-    const has = await hasUserKeys(user.id);
-    return NextResponse.json({ connected: has });
+    const keys = await getUserKeys(user.id);
+    if (!keys) return NextResponse.json({ connected: false });
+
+    return NextResponse.json({
+      connected: true,
+      url: keys.url,
+      anonKey: keys.anonKey,
+    });
   } catch (err: any) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
