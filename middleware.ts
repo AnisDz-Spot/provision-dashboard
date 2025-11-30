@@ -16,6 +16,11 @@ function readCredentialsFile() {
 }
 
 export async function middleware(request: NextRequest) {
+  // Skip middleware entirely for NextAuth's own API routes
+  if (request.nextUrl.pathname.startsWith("/api/auth/")) {
+    return NextResponse.next();
+  }
+
   // Try NextAuth token first (app-level authentication independent of Supabase)
   try {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
@@ -26,7 +31,6 @@ export async function middleware(request: NextRequest) {
 
       // Allow static and auth-related paths
       if (
-        request.nextUrl.pathname.startsWith("/api/auth") ||
         request.nextUrl.pathname.startsWith("/api/temp-supabase-creds") ||
         request.nextUrl.pathname.startsWith("/login") ||
         request.nextUrl.pathname.startsWith("/register") ||
