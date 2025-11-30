@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createClient } from "@/lib/supabase/client";
 import { createBrowserClient } from "@supabase/ssr";
 import { Github, Mail, Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -220,6 +221,28 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-4">
+            {/* App-level NextAuth buttons */}
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => signIn("github", { callbackUrl: `${window.location.origin}/dashboard` })}
+            >
+              <Github size={18} className="mr-2" />
+              Sign in with GitHub (App)
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => signIn("google", { callbackUrl: `${window.location.origin}/dashboard` })}
+            >
+              <Mail size={18} className="mr-2" />
+              Sign in with Google (App)
+            </Button>
+
+            {/* Project-level Supabase provider buttons (fallback when app-level providers are not configured) */}
             <Button
               type="button"
               variant="outline"
