@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 import { Github, Mail, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
@@ -16,6 +17,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCredsModal, setShowCredsModal] = useState(false);
+  const [tempSupabaseUrl, setTempSupabaseUrl] = useState("");
+  const [tempSupabaseKey, setTempSupabaseKey] = useState("");
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
   const supabase = createClient();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -60,9 +66,7 @@ export default function LoginPage() {
     const pubKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").toString();
 
     if (!pubUrl || !pubKey || pubUrl.includes("your-project-ref") || pubKey.includes("your_anon_public_key")) {
-      setError(
-        "Authentication is not configured. Ask the site admin to configure Supabase auth, or sign up with email/password."
-      );
+      setShowCredsModal(true);
       return;
     }
 
@@ -81,6 +85,41 @@ export default function LoginPage() {
     } catch (err: any) {
       setError(err.message || "An error occurred");
       setLoading(false);
+    }
+  };
+
+  const submitTempCredsAndOAuth = async (provider: "github" | "google") => {
+    setModalError(null);
+    if (!tempSupabaseUrl || !tempSupabaseKey) {
+      setModalError("Please enter both Supabase URL and anon key");
+      return;
+    }
+
+    try {
+      // Send creds to server which will set an HTTP-only temp cookie
+      setModalLoading(true);
+      const resp = await fetch("/api/temp-supabase-creds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: tempSupabaseUrl, anonKey: tempSupabaseKey }),
+      });
+
+      if (!resp.ok) {
+        const body = await resp.json().catch(() => ({}));
+        throw new Error(body?.error || "Failed to store temporary credentials");
+      }
+
+      // Create a browser client with provided creds and initiate OAuth
+      const client = createBrowserClient(tempSupabaseUrl, tempSupabaseKey);
+      const { error } = await client.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setModalError(err.message || "Failed to start OAuth");
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -104,6 +143,76 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Credentials Modal */}
+          {showCredsModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-md">
+                <CardHeader>
+                  <CardTitle>Supabase Configuration</CardTitle>
+                  <CardDescription>
+                    Enter your Supabase project credentials to continue
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {modalError && (
+                    <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                      {modalError}
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Supabase URL</label>
+                    <Input
+                      type="text"
+                      placeholder="https://your-project.supabase.co"
+                      value={tempSupabaseUrl}
+                      onChange={(e) => setTempSupabaseUrl(e.target.value)}
+                      disabled={modalLoading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Anon Key</label>
+                    <Input
+                      type="password"
+                      placeholder="Your anon public key"
+                      value={tempSupabaseKey}
+                      onChange={(e) => setTempSupabaseKey(e.target.value)}
+                      disabled={modalLoading}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        setShowCredsModal(false);
+                        setTempSupabaseUrl("");
+                        setTempSupabaseKey("");
+                        setModalError(null);
+                      }}
+                      disabled={modalLoading}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      onClick={() => submitTempCredsAndOAuth("github")}
+                      disabled={modalLoading}
+                    >
+                      {modalLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Configuring...
+                        </>
+                      ) : (
+                        "Continue with GitHub"
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
               {error}
