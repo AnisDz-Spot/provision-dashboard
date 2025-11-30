@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { getToken } from "next-auth/jwt";
 
 const ENCRYPTION_KEY = process.env.SUPABASE_KEYS_ENCRYPTION_KEY || "";
 
@@ -80,37 +81,49 @@ function writeCredentials(data: Record<string, string>) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    // Try Supabase session first (if app-level supabase configured)
+    let userId: string | null = null;
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+      if (!authError && user) {
+        userId = user.id;
+      }
+    } catch (e) {
+      // createClient may throw when app-level SUPABASE env is missing; ignore
+      userId = null;
+    }
+
+    // If no supabase user, try NextAuth token
+    if (!userId) {
+      const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+      if (token) {
+        const email = (token as any).email;
+        const sub = (token as any).sub;
+        userId = email ? `nextauth:${email}` : sub ? `nextauth:${sub}` : null;
+      }
+    }
+
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const credentials = readCredentials();
-    const encrypted = credentials[user.id];
+    const encrypted = credentials[userId];
 
     if (!encrypted) {
-      return NextResponse.json({
-        configured: false,
-      });
+      return NextResponse.json({ configured: false });
     }
 
     try {
       const decrypted = decryptCredentials(encrypted);
-      return NextResponse.json({
-        configured: true,
-        url: decrypted.url,
-        apiKey: decrypted.apiKey,
-      });
+      return NextResponse.json({ configured: true, url: decrypted.url, apiKey: decrypted.apiKey });
     } catch (err) {
-      return NextResponse.json({
-        configured: false,
-        error: "Failed to decrypt credentials",
-      });
+      return NextResponse.json({ configured: false, error: "Failed to decrypt credentials" });
     }
   } catch (err: any) {
     return NextResponse.json(
@@ -122,13 +135,32 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    // Determine current user id (support Supabase sessions or NextAuth tokens)
+    let userId: string | null = null;
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+      if (!authError && user) {
+        userId = user.id;
+      }
+    } catch (e) {
+      userId = null;
+    }
+
+    if (!userId) {
+      const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+      if (token) {
+        const email = (token as any).email;
+        const sub = (token as any).sub;
+        userId = email ? `nextauth:${email}` : sub ? `nextauth:${sub}` : null;
+      }
+    }
+
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -160,7 +192,7 @@ export async function POST(request: NextRequest) {
     // Encrypt and store
     const encrypted = encryptCredentials(url, key);
     const credentials = readCredentials();
-    credentials[user.id] = encrypted;
+    credentials[userId] = encrypted;
     writeCredentials(credentials);
 
     return NextResponse.json({ success: true });

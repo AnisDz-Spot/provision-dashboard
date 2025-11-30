@@ -37,6 +37,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "baseline-browser-mapping": "^2.8.32",
+    "next-auth": "^4.22.1",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
     "tailwindcss": "^4",
