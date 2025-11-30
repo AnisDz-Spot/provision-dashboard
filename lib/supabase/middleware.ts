@@ -12,11 +12,16 @@ export async function updateSession(request: NextRequest) {
   // (which would throw) and treat the request as unauthenticated for
   // protected-route redirect purposes.
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    // Allow auth pages and the temporary creds API through when app-level
+    // Supabase env vars are not configured. The `/api/temp-supabase-creds`
+    // endpoint is used by the client to POST user-supplied Supabase
+    // credentials so OAuth can proceed; blocking it prevents the flow.
     if (
       !request.nextUrl.pathname.startsWith("/login") &&
       !request.nextUrl.pathname.startsWith("/register") &&
       !request.nextUrl.pathname.startsWith("/forgot-password") &&
-      !request.nextUrl.pathname.startsWith("/auth")
+      !request.nextUrl.pathname.startsWith("/auth") &&
+      !request.nextUrl.pathname.startsWith("/api/temp-supabase-creds")
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
@@ -59,7 +64,10 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/login") &&
     !request.nextUrl.pathname.startsWith("/register") &&
     !request.nextUrl.pathname.startsWith("/forgot-password") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !request.nextUrl.pathname.startsWith("/auth") &&
+    // Allow the temporary creds API so users can POST project credentials
+    // and continue the OAuth flow even when unauthenticated.
+    !request.nextUrl.pathname.startsWith("/api/temp-supabase-creds")
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

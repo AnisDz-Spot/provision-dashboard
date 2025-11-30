@@ -23,7 +23,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCredsModal, setShowCredsModal] = useState(false);
   const [tempSupabaseUrl, setTempSupabaseUrl] = useState("");
-  const [tempSupabaseKey, setTempSupabaseKey] = useState("");
+  const [tempSupabaseApiKey, setTempSupabaseApiKey] = useState("");
   const [modalError, setModalError] = useState<string | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const supabase = createClient();
@@ -111,8 +111,8 @@ export default function RegisterPage() {
 
   const submitTempCredsAndOAuth = async (provider: "github" | "google") => {
     setModalError(null);
-    if (!tempSupabaseUrl || !tempSupabaseKey) {
-      setModalError("Please enter both Supabase URL and anon key");
+    if (!tempSupabaseUrl || !tempSupabaseApiKey) {
+      setModalError("Please enter both Supabase URL and API key");
       return;
     }
 
@@ -122,7 +122,7 @@ export default function RegisterPage() {
       const resp = await fetch("/api/temp-supabase-creds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: tempSupabaseUrl, anonKey: tempSupabaseKey }),
+        body: JSON.stringify({ url: tempSupabaseUrl, apiKey: tempSupabaseApiKey }),
       });
 
       if (!resp.ok) {
@@ -131,7 +131,7 @@ export default function RegisterPage() {
       }
 
       // Create a browser client with provided creds and initiate OAuth
-      const client = createBrowserClient(tempSupabaseUrl, tempSupabaseKey);
+      const client = createBrowserClient(tempSupabaseUrl, tempSupabaseApiKey as string);
       const { error } = await client.auth.signInWithOAuth({
         provider,
         options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -190,15 +190,15 @@ export default function RegisterPage() {
                       disabled={modalLoading}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Anon Key</label>
-                    <Input
-                      type="password"
-                      placeholder="Your anon public key"
-                      value={tempSupabaseKey}
-                      onChange={(e) => setTempSupabaseKey(e.target.value)}
-                      disabled={modalLoading}
-                    />
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Supabase API Key</label>
+                          <Input
+                            type="password"
+                            placeholder="Your API key"
+                            value={tempSupabaseApiKey}
+                            onChange={(e) => setTempSupabaseApiKey(e.target.value)}
+                            disabled={modalLoading}
+                          />
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -207,7 +207,7 @@ export default function RegisterPage() {
                       onClick={() => {
                         setShowCredsModal(false);
                         setTempSupabaseUrl("");
-                        setTempSupabaseKey("");
+                        setTempSupabaseApiKey("");
                         setModalError(null);
                       }}
                       disabled={modalLoading}

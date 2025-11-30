@@ -42,7 +42,7 @@ export default function SetupDatabasePage() {
 
     try {
       if (!supabaseUrl || !supabaseKey) {
-        throw new Error("Please enter both Supabase URL and anon key");
+        throw new Error("Please enter both Supabase URL and API key");
       }
 
       if (!supabaseUrl.includes("supabase.co")) {
@@ -50,13 +50,13 @@ export default function SetupDatabasePage() {
       }
 
       if (supabaseKey.length < 20) {
-        throw new Error("Invalid anon key - appears too short");
+        throw new Error("Invalid API key - appears too short");
       }
 
       const response = await fetch("/api/user/supabase-credentials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: supabaseUrl, anonKey: supabaseKey }),
+        body: JSON.stringify({ url: supabaseUrl, apiKey: supabaseKey }),
       });
 
       if (!response.ok) {
@@ -166,9 +166,9 @@ export default function SetupDatabasePage() {
                       >
                         supabase.com
                       </a>
-                    </li>
-                    <li>Create or open a project</li>
                     <li>
+                      Go to Settings → API → Copy Project URL and API key
+                    </li>
                       Go to Settings → API → Copy Project URL and anon key
                     </li>
                     <li>Paste them below</li>
@@ -192,17 +192,17 @@ export default function SetupDatabasePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Anon Key</label>
+                  <label className="text-sm font-medium">API Key</label>
                   <Input
                     type="password"
-                    placeholder="eyJ... (your anon key)"
+                    placeholder="eyJ... (your API key)"
                     value={supabaseKey}
                     onChange={(e) => setSupabaseKey(e.target.value)}
                     disabled={supabaseLoading}
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Your public anon key for authentication
+                    Your project API key for authentication
                   </p>
                 </div>
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import crypto from "crypto";
 
-function encryptCredentials(url: string, anonKey: string): string {
+function encryptCredentials(url: string, apiKey: string): string {
   const ENCRYPTION_KEY = process.env.SUPABASE_KEYS_ENCRYPTION_KEY || "";
   if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
     throw new Error(
@@ -14,7 +14,7 @@ function encryptCredentials(url: string, anonKey: string): string {
   const encKey = Buffer.from(ENCRYPTION_KEY, "hex");
   const cipher = crypto.createCipheriv("aes-256-gcm", encKey, iv);
 
-  const data = JSON.stringify({ url, anonKey });
+  const data = JSON.stringify({ url, apiKey });
   let encrypted = cipher.update(data, "utf-8", "hex");
   encrypted += cipher.final("hex");
 
@@ -75,7 +75,8 @@ export async function GET(request: Request) {
       // If the user provided temporary Supabase creds, use them to complete OAuth and persist
       if (cookies.temp_supabase_creds) {
         const temp = JSON.parse(decodeURIComponent(cookies.temp_supabase_creds));
-        const { url: tempUrl, anonKey: tempAnonKey } = temp;
+        const { url: tempUrl, apiKey: tempApiKey, anonKey: tempAnonKey } = temp;
+        const tempKey = tempApiKey || tempAnonKey;
 
         // Prepare cookie collectors for createServerClient
         const parsedRequestCookies = request.headers.get("cookie") || "";
@@ -92,7 +93,7 @@ export async function GET(request: Request) {
 
         const cookiesToSet: Array<any> = [];
 
-        const supabase = createServerClient(tempUrl, tempAnonKey, {
+        const supabase = createServerClient(tempUrl, tempKey as string, {
           cookies: {
             getAll() {
               return parsed;
@@ -117,7 +118,7 @@ export async function GET(request: Request) {
 
         // Persist the provided Supabase creds for this user (encrypted)
         try {
-          const encrypted = encryptCredentials(tempUrl, tempAnonKey);
+          const encrypted = encryptCredentials(tempUrl, tempKey as string);
           const creds = readCredentialsFile();
           creds[user.id] = encrypted;
           writeCredentialsFile(creds);

@@ -2,17 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, anonKey } = await request.json();
+    const { url, apiKey, anonKey } = await request.json();
+    const key = apiKey || anonKey;
 
-    if (!url || !anonKey) {
-      return NextResponse.json({ error: "Missing url or anonKey" }, { status: 400 });
+    if (!url || !key) {
+      return NextResponse.json({ error: "Missing url or apiKey" }, { status: 400 });
     }
 
     if (!url.includes("supabase.co")) {
       return NextResponse.json({ error: "Invalid Supabase URL" }, { status: 400 });
     }
 
-    const value = encodeURIComponent(JSON.stringify({ url, anonKey }));
+    // Canonicalize to `apiKey` in the temporary cookie payload
+    const value = encodeURIComponent(JSON.stringify({ url, apiKey: key }));
 
     const res = NextResponse.json({ success: true });
     res.cookies.set("temp_supabase_creds", value, {

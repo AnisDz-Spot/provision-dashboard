@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 const ENCRYPTION_KEY = process.env.SUPABASE_KEYS_ENCRYPTION_KEY || "";
 
-function encryptCredentials(url: string, anonKey: string): string {
+function encryptCredentials(url: string, apiKey: string): string {
   if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
     throw new Error(
       "SUPABASE_KEYS_ENCRYPTION_KEY must be set to a 32-byte hex string (64 chars)"
@@ -15,7 +15,7 @@ function encryptCredentials(url: string, anonKey: string): string {
   const encKey = Buffer.from(ENCRYPTION_KEY, "hex");
   const cipher = crypto.createCipheriv("aes-256-gcm", encKey, iv);
 
-  const data = JSON.stringify({ url, anonKey });
+  const data = JSON.stringify({ url, apiKey });
   let encrypted = cipher.update(data, "utf-8", "hex");
   encrypted += cipher.final("hex");
 
@@ -23,7 +23,7 @@ function encryptCredentials(url: string, anonKey: string): string {
   return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted}`;
 }
 
-function decryptCredentials(encrypted: string): { url: string; anonKey: string } {
+function decryptCredentials(encrypted: string): { url: string; apiKey: string } {
   if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
     throw new Error(
       "SUPABASE_KEYS_ENCRYPTION_KEY must be set to a 32-byte hex string (64 chars)"
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         configured: true,
         url: decrypted.url,
-        anonKey: decrypted.anonKey,
+        apiKey: decrypted.apiKey,
       });
     } catch (err) {
       return NextResponse.json({
@@ -132,11 +132,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { url, anonKey } = await request.json();
+    const { url, apiKey, anonKey } = await request.json();
+    const key = apiKey || anonKey;
 
-    if (!url || !anonKey) {
+    if (!url || !key) {
       return NextResponse.json(
-        { error: "Missing Supabase URL or anon key" },
+        { error: "Missing Supabase URL or API key" },
         { status: 400 }
       );
     }
@@ -149,15 +150,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (anonKey.length < 20) {
+    if (key.length < 20) {
       return NextResponse.json(
-        { error: "Invalid anon key format" },
+        { error: "Invalid API key format" },
         { status: 400 }
       );
     }
 
     // Encrypt and store
-    const encrypted = encryptCredentials(url, anonKey);
+    const encrypted = encryptCredentials(url, key);
     const credentials = readCredentials();
     credentials[user.id] = encrypted;
     writeCredentials(credentials);
