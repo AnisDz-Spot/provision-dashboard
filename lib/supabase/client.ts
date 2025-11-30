@@ -2,14 +2,13 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 
-export function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  // If env vars are missing (e.g., during build), return a placeholder
-  // This allows pages to render without throwing during prerendering
-  if (!url || !key) {
-    // Return a minimal mock to prevent throws during build
+/**
+ * Create a Supabase browser client using the user's own credentials.
+ * @param userSupabaseUrl - The user's Supabase project URL
+ * @param userSupabaseKey - The user's Supabase Anon Key
+ */
+export function createClient(userSupabaseUrl: string, userSupabaseKey: string) {
+  if (!userSupabaseUrl || !userSupabaseKey) {
     return {
       auth: {
         resetPasswordForEmail: async () => ({
@@ -39,6 +38,6 @@ export function createClient() {
       },
     } as any;
   }
-
-  return createBrowserClient(url, key);
+  return createBrowserClient(userSupabaseUrl, userSupabaseKey);
 }
+

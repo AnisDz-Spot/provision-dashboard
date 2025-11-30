@@ -55,15 +55,15 @@ A premium, modern, and highly performant Project Management Dashboard template b
 
 3. **Set up environment variables**
    - Create a `.env.local` file in the root directory
-   - Add your Supabase credentials (for authentication only):
+   - Add your NextAuth and OAuth credentials only:
      ```env
-     NEXT_PUBLIC_SUPABASE_URL=your-project-url
-     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+     NEXTAUTH_SECRET=your-random-64-char-secret
+     GITHUB_ID=your-github-client-id
+     GITHUB_SECRET=your-github-client-secret
+     GOOGLE_ID=your-google-client-id
+     GOOGLE_SECRET=your-google-client-secret
      ```
-   - Generate and add encryption key:
-     ```env
-     SUPABASE_KEYS_ENCRYPTION_KEY=your-32-char-hex-string
-     ```
+   - Do NOT include any Supabase project URL or anon key. Users will provide their own.
 
 4. **Run the development server**
    ```bash
@@ -73,13 +73,14 @@ A premium, modern, and highly performant Project Management Dashboard template b
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-6. **Follow the setup wizard**
-   - Create account or login
-   - Follow the 4-step "Connect Your Database" wizard
-   - Provide your PostgreSQL connection string
-   - The dashboard will initialize with your data
+6. **Sign up or log in via OAuth**
+   - Use GitHub or Google to sign in/register.
 
-**📚 For complete setup instructions and database provider recommendations, see [BRING_YOUR_OWN_DATABASE.md](./BRING_YOUR_OWN_DATABASE.md)**
+7. **Connect your Supabase database**
+   - Once logged in, go to Settings > Database.
+   - Enter your Supabase Project URL and Anon Key to finish linking your data source. The dashboard is then personalized to your data.
+
+**📚 To learn more about supported database providers, see [BRING_YOUR_OWN_DATABASE.md](./BRING_YOUR_OWN_DATABASE.md)**
 
 ## 🏗️ Project Structure
 

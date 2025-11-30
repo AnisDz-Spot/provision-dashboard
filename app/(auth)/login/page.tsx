@@ -18,11 +18,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCredsModal, setShowCredsModal] = useState(false);
-  const [tempSupabaseUrl, setTempSupabaseUrl] = useState("");
-  const [tempSupabaseApiKey, setTempSupabaseApiKey] = useState("");
-  const [modalError, setModalError] = useState<string | null>(null);
-  const [modalLoading, setModalLoading] = useState(false);
+  // Remove state for tempSupabaseUrl and modal as we no longer need it
   const supabase = createClient();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -61,68 +57,69 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuthLogin = async (provider: "github" | "google") => {
-    // Prevent calling OAuth if app-level Supabase is not configured.
-    const pubUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").toString();
-    const pubKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").toString();
+  // Remove handleOAuthLogin - only use NextAuth
+  // const handleOAuthLogin = async (provider: "github" | "google") => {
+  //   // Prevent calling OAuth if app-level Supabase is not configured.
+  //   const pubUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").toString();
+  //   const pubKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").toString();
 
-    if (!pubUrl || !pubKey || pubUrl.includes("your-project-ref") || pubKey.includes("your_anon_public_key")) {
-      setShowCredsModal(true);
-      return;
-    }
+  //   if (!pubUrl || !pubKey || pubUrl.includes("your-project-ref") || pubKey.includes("your_anon_public_key")) {
+  //     setShowCredsModal(true);
+  //     return;
+  //   }
 
-    setLoading(true);
-    setError(null);
+  //   setLoading(true);
+  //   setError(null);
 
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+  //   try {
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider,
+  //       options: {
+  //         redirectTo: `${window.location.origin}/auth/callback`,
+  //       },
+  //     });
 
-      if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
-      setLoading(false);
-    }
-  };
+  //     if (error) throw error;
+  //   } catch (err: any) {
+  //     setError(err.message || "An error occurred");
+  //     setLoading(false);
+  //   }
+  // };
 
-  const submitTempCredsAndOAuth = async (provider: "github" | "google") => {
-    setModalError(null);
-    if (!tempSupabaseUrl || !tempSupabaseApiKey) {
-      setModalError("Please enter both Supabase URL and API key");
-      return;
-    }
+  // const submitTempCredsAndOAuth = async (provider: "github" | "google") => {
+  //   setModalError(null);
+  //   if (!tempSupabaseUrl || !tempSupabaseApiKey) {
+  //     setModalError("Please enter both Supabase URL and API key");
+  //     return;
+  //   }
 
-    try {
-      // Send creds to server which will set an HTTP-only temp cookie
-      setModalLoading(true);
-      const resp = await fetch("/api/temp-supabase-creds", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: tempSupabaseUrl, apiKey: tempSupabaseApiKey }),
-      });
+  //   try {
+  //     // Send creds to server which will set an HTTP-only temp cookie
+  //     setModalLoading(true);
+  //     const resp = await fetch("/api/temp-supabase-creds", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ url: tempSupabaseUrl, apiKey: tempSupabaseApiKey }),
+  //     });
 
-      if (!resp.ok) {
-        const body = await resp.json().catch(() => ({}));
-        throw new Error(body?.error || "Failed to store temporary credentials");
-      }
+  //     if (!resp.ok) {
+  //       const body = await resp.json().catch(() => ({}));
+  //       throw new Error(body?.error || "Failed to store temporary credentials");
+  //     }
 
-      // Create a browser client with provided creds and initiate OAuth
-      const client = createBrowserClient(tempSupabaseUrl, tempSupabaseApiKey as string);
-      const { error } = await client.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) throw error;
-    } catch (err: any) {
-      setModalError(err.message || "Failed to start OAuth");
-    } finally {
-      setModalLoading(false);
-    }
-  };
+  //     // Create a browser client with provided creds and initiate OAuth
+  //     const client = createBrowserClient(tempSupabaseUrl, tempSupabaseApiKey as string);
+  //     const { error } = await client.auth.signInWithOAuth({
+  //       provider,
+  //       options: { redirectTo: `${window.location.origin}/auth/callback` },
+  //     });
+  //     if (error) throw error;
+  //   } catch (err: any) {
+  //     setModalError(err.message || "Failed to start OAuth");
+  //   } finally {
+  //     setModalLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -145,7 +142,7 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           {/* Credentials Modal */}
-          {showCredsModal && (
+          {/* {showCredsModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
               <Card className="w-full max-w-md">
                 <CardHeader>
@@ -212,7 +209,7 @@ export default function LoginPage() {
                 </CardContent>
               </Card>
             </div>
-          )}
+          )} */}
 
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -227,6 +224,7 @@ export default function LoginPage() {
               variant="ghost"
               className="w-full"
               onClick={() => signIn("github", { callbackUrl: `${window.location.origin}/dashboard` })}
+              disabled={loading}
             >
               <Github size={18} className="mr-2" />
               Sign in with GitHub (App)
@@ -237,33 +235,15 @@ export default function LoginPage() {
               variant="ghost"
               className="w-full"
               onClick={() => signIn("google", { callbackUrl: `${window.location.origin}/dashboard` })}
+              disabled={loading}
             >
               <Mail size={18} className="mr-2" />
               Sign in with Google (App)
             </Button>
 
             {/* Project-level Supabase provider buttons (fallback when app-level providers are not configured) */}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => handleOAuthLogin("github")}
-              disabled={loading}
-            >
-              <Github size={18} className="mr-2" />
-              Continue with GitHub
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => handleOAuthLogin("google")}
-              disabled={loading}
-            >
-              <Mail size={18} className="mr-2" />
-              Continue with Google
-            </Button>
+            {/* {handleOAuthLogin("github")} */}
+            {/* {handleOAuthLogin("google")} */}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
